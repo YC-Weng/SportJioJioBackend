@@ -10,6 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.3"
+    "express": "^4.18.3",
+    "http-errors": "^2.0.0",
+    "jade": "^1.11.0",
+    "path": "^0.12.7",
+    "pg": "^8.11.3"
   }
 }
