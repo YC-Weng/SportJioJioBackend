@@ -1,23 +1,20 @@
 const express = require("express");
-const pg = require("pg");
-
-const dbData = {
-  host: "jiojio-do-user-15809025-0.c.db.ondigitalocean.com",
-  port: 25060,
-  database: "jjdb",
-  user: "doadmin",
-  password: "AVNS_-GWAu0hX_V8M32qsPQj",
-};
+const { Pool } = require("pg");
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const client = new pg.Client(dbData);
-  await client.connect();
+  const pool = new Pool({
+    user: "yc",
+    database: "jjdb",
+    port: 5432,
+    host: "localhost",
+    password: "sportjiojio",
+  });
 
-  const result = await client.query("SELECT * from posts");
+  const result = await pool.query("SELECT NOW()");
 
-  res.send({ post: result.rows, status: "ok" });
+  res.send({ post: result.rows });
 });
 
 module.exports = router;

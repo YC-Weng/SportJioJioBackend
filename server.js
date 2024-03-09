@@ -11,7 +11,6 @@ app.set("view engine", "jade");
 
 app.use((req, res, next) => {
   console.log("Time: ", Date.now());
-  console.log("URL: ", req.baseUrl);
   next();
 });
 
