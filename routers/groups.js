@@ -21,12 +21,16 @@ router.get("/groupId/:groupId", async (req, res, next) => {
       `SELECT g.name as "groupName", u.name as "userName" from users as u, groups as g, user_group_record as ugr WHERE g.id = ${groupId} and g.id = ugr.gid and u.id = ugr.uid`
     );
     const userList = [];
-    for (item in result.rows) {
+    for (const item in result.rows) {
       userList.push(item.userName);
     }
     if (result.rowCount == 0)
       res.send({ result: "no user in this group", status: "success" });
-    res.send({ result: result.rows, status: "success" });
+    else
+      res.send({
+        result: { groupName: result.rows[0].groupName, userList: userList },
+        status: "success",
+      });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
