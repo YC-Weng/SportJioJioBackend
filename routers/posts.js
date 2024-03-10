@@ -116,23 +116,28 @@ router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
     const result_group = await pool.query(
       `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = ${userId}`
     );
-    var flag = true;
-    for (let i = 0; i < result_group.rowCount; i++) {
-      if (result_group.rows[i].id == result_post.rows[0].groupId) flag = false;
-    }
-    if (result_post.rowCount == 0 || flag) res.send({ status: "fail" });
+    console.log(result_group.rows);
+    console.log(result_post.rows);
+    if (result_post.rowCount == 0)
+      res.send({ result: "no post found", status: "fail" });
     else {
-      const result_join = await pool.query(
-        `SELECT * from join_record WHERE pid = ${postId} AND uid = ${userId}`
-      );
-      if (result_join.rowCount > 0)
-        res.send({ result: "user already in the post", status: "fail" });
-      else {
-        await pool.query(
-          `INSERT into join_record (pid, uid) values (${postId}, ${userId})`
-        );
-        res.send({ status: "success" });
+      var flag = false;
+      for (let i = 0; i < result_group.rowCount; i++) {
+        if (result_group.rows[i].id == result_post.rows[0].groupId) flag = true;
       }
+      if (flag) {
+        const result_join = await pool.query(
+          `SELECT * from join_record WHERE pid = ${postId} AND uid = ${userId}`
+        );
+        if (result_join.rowCount > 0)
+          res.send({ result: "user already in the post", status: "fail" });
+        else {
+          await pool.query(
+            `INSERT into join_record (pid, uid) values (${postId}, ${userId})`
+          );
+          res.send({ status: "success" });
+        }
+      } else res.send({ status: "fail" });
     }
   } catch (error) {
     console.log(error);
