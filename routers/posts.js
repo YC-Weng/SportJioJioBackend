@@ -82,7 +82,7 @@ router.post(
         await pool.query(
           `INSERT into join_record (uid, pid) values (${userId}, ${result.rows[0].id})`
         );
-        res.send({ result: { id: sql.rows[0].id }, status: "success" });
+        res.send({ result: { id: result.rows[0].id }, status: "success" });
       }
     } catch (error) {
       console.log(error);
