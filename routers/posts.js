@@ -116,14 +116,13 @@ router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
     const result_group = await pool.query(
       `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = ${userId}`
     );
-    console.log(result_group.rows);
-    console.log(result_post.rows);
     if (result_post.rowCount == 0)
       res.send({ result: "no post found", status: "fail" });
     else {
       var flag = false;
       for (let i = 0; i < result_group.rowCount; i++) {
-        if (result_group.rows[i].id == result_post.rows[0].groupId) flag = true;
+        if (result_group.rows[i].gid == result_post.rows[0].groupId)
+          flag = true;
       }
       if (flag) {
         const result_join = await pool.query(
