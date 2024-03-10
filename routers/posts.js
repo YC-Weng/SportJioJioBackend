@@ -113,8 +113,14 @@ router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
     const result_post = await pool.query(
       `SELECT * from posts WHERE id = ${postId}`
     );
-    if (result_post.rowCount == 0)
-      res.send({ result: "no post found", status: "fail" });
+    const result_group = await pool.query(
+      `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = ${userId}`
+    );
+    if (
+      result_post.rowCount == 0 ||
+      !result_group.rows.includes(result_post.rows[0].groupId)
+    )
+      res.send({ status: "fail" });
     else {
       const result_join = await pool.query(
         `SELECT * from join_record WHERE pid = ${postId} AND uid = ${userId}`
