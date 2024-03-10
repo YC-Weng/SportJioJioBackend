@@ -20,7 +20,7 @@ router.get("/postid/:postId", async (req, res, next) => {
     const result_post = await pool.query(
       `SELECT * from posts WHERE id = ${postId}`
     );
-    if (result.rowCount == 0)
+    if (result_post.rowCount == 0)
       res.send({ result: "no post found", status: "fail" });
     else {
       const result_participant = await pool.query(
