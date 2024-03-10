@@ -78,12 +78,11 @@ router.post(
       else {
         const { name, startTime, endTime, maxNum, place } = req.body;
         const sql = `INSERT into posts (name, "startTime", "endTime", "maxNum", place, "launcherId", "groupId") values ('${name}', '${startTime}', '${endTime}', ${maxNum}, '${place}', ${userId}, ${groupId}) RETURNING id`;
-        console.log(sql);
         const result = await pool.query(sql);
         await pool.query(
           `INSERT into join_record (uid, pid) values (${userId}, ${result.rows[0].id})`
         );
-        res.send({ status: "success" });
+        res.send({ result: { id: sql.rows[0].id }, status: "success" });
       }
     } catch (error) {
       console.log(error);

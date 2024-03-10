@@ -46,9 +46,9 @@ router.post("/create/groupname/:groupName", async (req, res, next) => {
   try {
     const groupName = req.params.groupName;
     const result = await pool.query(
-      `INSERT into groups (name) values ('${groupName}')`
+      `INSERT into groups (name) values ('${groupName}') RETURNING id`
     );
-    res.send({ status: "success" });
+    res.send({ result: { id: result.rows[0].id }, status: "success" });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });

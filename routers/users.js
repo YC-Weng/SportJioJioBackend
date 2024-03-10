@@ -48,9 +48,9 @@ router.post("/create/username/:userName", async (req, res, next) => {
   try {
     const userName = req.params.userName;
     const result = await pool.query(
-      `INSERT into users (name) values ('${userName}')`
+      `INSERT into users (name) values ('${userName}') RETURNING id`
     );
-    res.send({ status: "success" });
+    res.send({ result: { id: result.rows[0].id }, status: "success" });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
