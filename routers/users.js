@@ -24,17 +24,15 @@ router.get("/userid/:userId", async (req, res, next) => {
   try {
     const userId = req.params.userId;
     var result = await pool.query(
-      `SELECT u.name as "userName", g.name as "groupName" from users as u, groups as g, user_group_record as ugr WHERE u.id = ${userId} and u.id = ugr.uid and g.id = ugr.gid`
+      `SELECT * from users as u WHERE u.id = ${userId}`
     );
     if (result.rowCount == 0)
-      res.send({ result: "user not in any group", status: "success" });
+      res.send({ result: "user not found", status: "success" });
     else {
-      for (let i = 0; i < result.rowCount; i++) {
-        const group_rst = await pool.query(
-          `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${userId} AND ugr.gid = g.id`
-        );
-        result.rows[i].groups = group_rst.rows;
-      }
+      const group_rst = await pool.query(
+        `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${userId} AND ugr.gid = g.id`
+      );
+      result.rows[0].groups = group_rst.rows;
       res.send({
         result: result.rows[0],
         status: "success",
