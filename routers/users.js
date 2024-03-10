@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/userId/:userId", async (req, res, next) => {
+router.get("/userid/:userId", async (req, res, next) => {
   try {
     const userId = req.params.userId;
     var result = await pool.query(
@@ -36,7 +36,7 @@ router.get("/userId/:userId", async (req, res, next) => {
         result.rows[i].groups = group_rst.rows;
       }
       res.send({
-        result: result.rows,
+        result: result.rows[0],
         status: "success",
       });
     }
