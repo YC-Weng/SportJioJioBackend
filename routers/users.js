@@ -20,7 +20,7 @@ router.get("/userId/:userId", async (req, res, next) => {
     const result = await pool.query(
       `SELECT u.name as "userName", g.name as "groupName" from users as u, groups as g, user_group_record as ugr WHERE u.id = ${userId} and u.id = ugr.uid and g.id = ugr.gid`
     );
-    console.log(result.rowCount);
+    console.log(result.rows);
     const groupList = [];
     for (const item in result.rows) {
       groupList.push(item.groupName);
