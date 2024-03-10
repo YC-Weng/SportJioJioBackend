@@ -27,7 +27,7 @@ router.get("/postid/:postId", async (req, res, next) => {
         `SELECT u.id, u.name from join_record as j, users as u WHERE j.pid = ${postId} AND j.uid = u.id`
       );
       res.send({
-        result: { ...result.rows, participant: result_participant.rows },
+        result: { ...result_post.rows, participant: result_participant.rows },
         status: "success",
       });
     }
