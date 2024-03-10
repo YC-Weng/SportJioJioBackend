@@ -9,7 +9,7 @@ router.get("/", async (req, res, next) => {
     var result = await pool.query("SELECT * from posts limit 100");
     for (let i = 0; i < result.rowCount; i++) {
       const post_rst = await pool.query(
-        `SELECT u.id, u.name from join_record as j, user as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
+        `SELECT u.id, u.name from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
       );
       result.rows[i].participant = post_rst.rows;
     }
