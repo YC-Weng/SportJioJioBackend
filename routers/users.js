@@ -9,7 +9,7 @@ router.get("/", async (req, res, next) => {
     var result = await pool.query("SELECT * from users limit 100");
     for (let i = 0; i < result.rowCount; i++) {
       const group_rst = await pool.query(
-        `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${result.rows[i].id} AND ugr.gid = g.id`
+        `SELECT g.id, g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${result.rows[i].id} AND ugr.gid = g.id`
       );
       result.rows[i].groups = group_rst.rows;
     }
@@ -30,7 +30,7 @@ router.get("/userid/:userId", async (req, res, next) => {
       res.send({ result: "user not found", status: "success" });
     else {
       const group_rst = await pool.query(
-        `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${userId} AND ugr.gid = g.id`
+        `SELECT g.id, g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${userId} AND ugr.gid = g.id`
       );
       result.rows[0].groups = group_rst.rows;
       res.send({
