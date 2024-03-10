@@ -11,7 +11,7 @@ router.get("/", async (req, res, next) => {
       const mb_rst = await pool.query(
         `SELECT u.id, u.name from users as u, user_group_record as ugr WHERE ugr.gid = ${result.rows[i].id} AND ugr.uid = u.id`
       );
-      result.rows[i].member = mb_rst;
+      result.rows[i].member = mb_rst.rows;
     }
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
@@ -30,7 +30,7 @@ router.get("/groupId/:groupId", async (req, res, next) => {
       const mb_rst = await pool.query(
         `SELECT u.id, u.name from users as u, user_group_record as ugr WHERE ugr.gid = ${groupId} AND ugr.uid = u.id`
       );
-      result.rows[0].member = mb_rst;
+      result.rows[0].member = mb_rst.rows;
       res.send({
         result: result.rows[0],
         status: "success",
