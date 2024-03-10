@@ -6,7 +6,13 @@ const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT * from posts limit 100");
+    var result = await pool.query("SELECT * from posts limit 100");
+    for (let i = 0; i < result.rowCount; i++) {
+      const post_rst = await pool.query(
+        `SELECT u.id, u.name from join_record as j, user as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
+      );
+      result.rows[i].participant = post_rst.rows;
+    }
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
     console.log(error);
@@ -27,7 +33,10 @@ router.get("/postid/:postId", async (req, res, next) => {
         `SELECT u.id, u.name from join_record as j, users as u WHERE j.pid = ${postId} AND j.uid = u.id`
       );
       res.send({
-        result: { ...result_post.rows, participant: result_participant.rows },
+        result: {
+          ...result_post.rows[0],
+          participant: result_participant.rows,
+        },
         status: "success",
       });
     }
