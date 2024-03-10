@@ -29,7 +29,7 @@ router.get("/groupId/:groupId", async (req, res, next) => {
       res.send({ result: "no user in this group", status: "success" });
     else
       res.send({
-        result: { groupName: result.rows[0].groupName, userList: userList },
+        result: result.rows,
         status: "success",
       });
   } catch (error) {
