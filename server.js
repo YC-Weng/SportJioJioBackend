@@ -4,6 +4,7 @@ const path = require("path");
 
 const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
+const groupsRouter = require("./routers/groups");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use((req, res, next) => {
 
 app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
+app.use("/groups", groupsRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to SportJioJio Backend!!");

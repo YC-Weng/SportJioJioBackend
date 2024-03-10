@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/", async (req, res, next) => {
   try {
     const result = await pool.query("SELECT * from users limit 100");
-    res.send({ post: result.rows, status: "success" });
+    res.send({ result: result.rows, status: "success" });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
@@ -18,9 +18,19 @@ router.get("/userId/:userId", async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const result = await pool.query(
-      `SELECT U.id, U.name, G.name from users as U, groups as G, user_group_record as UGR WHERE U.id = ${userId} and U.id = UGR.uid and G.id = UGR.gid`
+      `SELECT u.name as "userName", g.name as "groupName" from users as u, groups as g, user_group_record as ugr WHERE u.id = ${userId} and u.id = ugr.uid and g.id = ugr.gid`
     );
-    res.send({ post: result.rows, status: "success" });
+    const groupList = [];
+    for (item in result.rows) {
+      groupList.append(item.groupName);
+    }
+    if (result.rowCount == 0)
+      res.send({ result: "user not in any group", status: "success" });
+    else
+      res.send({
+        result: { userName: result.rows[0].userName, groupName: groupList },
+        status: "success",
+      });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
