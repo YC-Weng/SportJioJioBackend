@@ -49,9 +49,9 @@ router.post(
         res.send({ result: "no user in this group found", status: "fail" });
       else {
         const { name, startTime, endTime, maxNum, place } = req.body.name;
-        const result = await pool.query(
-          `INSERT into posts (name, "startTime", "endTime", "maxNum", place, "launcherId", "groupId") values ('${name}', '${startTime}', '${endTime}', ${maxNum}, '${place}', ${userId}, ${groupId}) RETURNING id`
-        );
+        const sql = `INSERT into posts (name, "startTime", "endTime", "maxNum", place, "launcherId", "groupId") values ('${name}', '${startTime}', '${endTime}', ${maxNum}, '${place}', ${userId}, ${groupId}) RETURNING id`;
+        console.log(sql);
+        const result = await pool.query(sql);
         await pool.query(
           `INSERT into join_record (uid, pid) values (${userId}, ${result.rows[0].id})`
         );
