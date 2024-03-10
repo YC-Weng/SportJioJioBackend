@@ -22,7 +22,7 @@ router.get("/userId/:userId", async (req, res, next) => {
     );
     const groupList = [];
     for (item in result.rows) {
-      groupList.append(item.groupName);
+      groupList.push(item.groupName);
     }
     if (result.rowCount == 0)
       res.send({ result: "user not in any group", status: "success" });
