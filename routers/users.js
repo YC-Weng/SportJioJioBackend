@@ -31,7 +31,7 @@ router.get("/userid/:userId", async (req, res, next) => {
     else {
       for (let i = 0; i < result.rowCount; i++) {
         const group_rst = await pool.query(
-          `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${result.rows[i].id} AND ugr.gid = g.id`
+          `SELECT g.name from user_group_record as ugr, groups as g WHERE ugr.uid = ${userId} AND ugr.gid = g.id`
         );
         result.rows[i].groups = group_rst.rows;
       }
