@@ -3,6 +3,7 @@ const createError = require("http-errors");
 const path = require("path");
 
 const postsRouter = require("./routers/posts");
+const usersRouter = require("./routers/users");
 
 const app = express();
 
@@ -15,9 +16,10 @@ app.use((req, res, next) => {
 });
 
 app.use("/posts", postsRouter);
+app.use("/users", usersRouter);
 
 app.get("/", (req, res) => {
-  res.send("Successful response.");
+  res.send("Welcome to SportJioJio Backend!!");
 });
 
 app.use(function (req, res, next) {
