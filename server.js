@@ -1,10 +1,18 @@
 const express = require("express");
 const createError = require("http-errors");
 const path = require("path");
+const http = require("http");
+const https = require("https");
+const fs = require("fs");
 
 const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
 const groupsRouter = require("./routers/groups");
+
+var privateKey = fs.readFileSync("sslcert/server.key", "utf8");
+var certificate = fs.readFileSync("sslcert/server.crt", "utf8");
+
+var credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 
@@ -42,4 +50,9 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-app.listen(3000, () => console.log("Example app is listening on port 3000."));
+// app.listen(3000, () => console.log("Example app is listening on port 3000."));
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(80);
+httpsServer.listen(443);
