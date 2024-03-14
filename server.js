@@ -54,7 +54,7 @@ app.use(function (err, req, res, next) {
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(3000, () =>
+httpServer.listen(3001, () =>
   console.log("HTTP Backend server is listening on port 3000")
 );
 httpsServer.listen(3000, () =>
