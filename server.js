@@ -9,8 +9,8 @@ const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
 const groupsRouter = require("./routers/groups");
 
-var privateKey = fs.readFileSync("sslcert/server.key", "utf8");
-var certificate = fs.readFileSync("sslcert/server.crt", "utf8");
+var privateKey = fs.readFileSync("sslcert/sportjiojio.key", "utf8");
+var certificate = fs.readFileSync("sslcert/sportjiojio_site.crt", "utf8");
 
 var credentials = { key: privateKey, cert: certificate };
 
@@ -54,5 +54,9 @@ app.use(function (err, req, res, next) {
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(80);
-httpsServer.listen(443);
+httpServer.listen(3000, () =>
+  console.log("HTTP Backend server is listening on port 3000")
+);
+httpsServer.listen(3000, () =>
+  console.log("HTTPS Backend server is listening on port 3000")
+);
