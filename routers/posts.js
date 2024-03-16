@@ -24,7 +24,7 @@ router.get("/groupid/:groupId", async (req, res, next) => {
   try {
     const groupId = req.params.groupId;
     var result = await pool.query(
-      `SELECT * from posts WHERE "groupId" = ${groupId}`
+      `SELECT * from posts WHERE group_id = '${groupId}'`
     );
     for (let i = 0; i < result.rowCount; i++) {
       const post_rst = await pool.query(
@@ -65,35 +65,32 @@ router.get("/postid/:postId", async (req, res, next) => {
   }
 });
 
-router.post(
-  "/create/userid/:userId/groupid/:groupId",
-  async (req, res, next) => {
-    try {
-      const { userId, groupId } = req.params;
-      const result = await pool.query(
-        `SELECT * from user_group_record WHERE uid = ${userId} AND gid = ${groupId}`
-      );
-      if (result.rowCount == 0)
-        res.send({ result: "no user in this group found", status: "fail" });
-      else {
-        const { name, startTime, endTime, maxNum, place } = req.body;
-        const sql = `INSERT into posts (name, "startTime", "endTime", "maxNum", place, "launcherId", "groupId") values ('${name}', '${startTime}', '${endTime}', ${maxNum}, '${place}', ${userId}, ${groupId}) RETURNING id`;
-        const result = await pool.query(sql);
-        await pool.query(
-          `INSERT into join_record (uid, pid) values (${userId}, ${result.rows[0].id})`
-        );
-        res.send({ result: { id: result.rows[0].id }, status: "success" });
-      }
-    } catch (error) {
-      console.log(error);
-      res.send({ status: "fail" });
-    }
-  }
-);
-
-router.post("/delete/postid/:postId", async (req, res, next) => {
+router.post("/create", async (req, res, next) => {
   try {
-    const postId = req.params.postId;
+    const { userId, groupId } = req.body;
+    const result = await pool.query(
+      `SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`
+    );
+    if (result.rowCount == 0)
+      res.send({ result: "no user in this group found", status: "fail" });
+    else {
+      const { name, startTime, endTime, maxNum, place } = req.body;
+      const sql = `INSERT into posts (name, start_time, end_time, max_num, place, launcher_id, group_id) values ('${name}', '${startTime}', '${endTime}', ${maxNum}, '${place}', '${userId}', '${groupId}') RETURNING id`;
+      const result = await pool.query(sql);
+      await pool.query(
+        `INSERT into join_record (uid, pid) values ('${userId}', ${result.rows[0].id})`
+      );
+      res.send({ result: { id: result.rows[0].id }, status: "success" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.send({ status: "fail" });
+  }
+});
+
+router.post("/delete", async (req, res, next) => {
+  try {
+    const { postId } = req.body;
     const result = await pool.query(`SELECT * from posts WHERE id = ${postId}`);
     if (result.rowCount == 0)
       res.send({ result: "no post found", status: "fail" });
@@ -107,15 +104,17 @@ router.post("/delete/postid/:postId", async (req, res, next) => {
   }
 });
 
-router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
+router.post("/join", async (req, res, next) => {
   try {
-    const { postId, userId } = req.params;
+    const { postId, userId } = req.body;
     const result_post = await pool.query(
       `SELECT * from posts WHERE id = ${postId}`
     );
     const result_group = await pool.query(
-      `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = ${userId}`
+      `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = '${userId}'`
     );
+
+    // check post exists
     if (result_post.rowCount == 0)
       res.send({ result: "no post found", status: "fail" });
     else {
@@ -124,15 +123,18 @@ router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
         if (result_group.rows[i].gid == result_post.rows[0].groupId)
           flag = true;
       }
+
+      // ckeck user is in the group
       if (flag) {
         const result_join = await pool.query(
-          `SELECT * from join_record WHERE pid = ${postId} AND uid = ${userId}`
+          `SELECT * from join_record WHERE pid = ${postId} AND uid = '${userId}'`
         );
+        // check user is not in the post
         if (result_join.rowCount > 0)
           res.send({ result: "user already in the post", status: "fail" });
         else {
           await pool.query(
-            `INSERT into join_record (pid, uid) values (${postId}, ${userId})`
+            `INSERT into join_record (pid, uid) values (${postId}, '${userId}')`
           );
           res.send({ status: "success" });
         }
@@ -144,9 +146,9 @@ router.post("/join/postid/:postId/userid/:userId", async (req, res, next) => {
   }
 });
 
-router.post("/leave/postid/:postId/userid/:userId", async (req, res, next) => {
+router.post("/leave", async (req, res, next) => {
   try {
-    const { postId, userId } = req.params;
+    const { postId, userId } = req.body;
     const result_post = await pool.query(
       `SELECT * from posts WHERE id = ${postId}`
     );
@@ -154,13 +156,13 @@ router.post("/leave/postid/:postId/userid/:userId", async (req, res, next) => {
       res.send({ result: "no post found", status: "fail" });
     else {
       const result_join = await pool.query(
-        `SELECT * from join_record WHERE pid = ${postId} AND uid = ${userId}`
+        `SELECT * from join_record WHERE pid = ${postId} AND uid = '${userId}'`
       );
       if (result_join.rowCount == 0)
         res.send({ result: "user already not in the post", status: "fail" });
       else {
         await pool.query(
-          `DELETE from join_record WHERE pid = ${postId} AND uid = ${userId}`
+          `DELETE from join_record WHERE pid = ${postId} AND uid = '${userId}'`
         );
         res.send({ status: "success" });
       }
