@@ -122,7 +122,7 @@ router.post("/join", async (req, res, next) => {
     else {
       var flag = false;
       for (let i = 0; i < result_group.rowCount; i++) {
-        if (result_group.rows[i].gid == result_post.rows[0].groupId)
+        if (result_group.rows[i].gid == result_post.rows[0].group_id)
           flag = true;
       }
 
