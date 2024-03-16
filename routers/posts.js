@@ -113,8 +113,6 @@ router.post("/join", async (req, res, next) => {
     const result_group = await pool.query(
       `SELECT ugr.gid from user_group_record as ugr WHERE ugr.uid = '${userId}'`
     );
-    console.log(result_group.rows);
-    console.log(result_post.rows);
 
     // check post exists
     if (result_post.rowCount == 0)
