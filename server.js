@@ -4,6 +4,7 @@ const path = require("path");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
+const cors = require("cors");
 
 const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
@@ -19,6 +20,7 @@ const app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
+app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
