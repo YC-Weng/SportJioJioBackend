@@ -28,8 +28,9 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.url} ${req.ip}`);
   console.log(`Body: `);
   for (let key in req.body) {
-    console.log(`${key}: ${req.body[key]}`);
+    console.log(`\t${key}: ${req.body[key]}`);
   }
+  console.log(`\n`);
   next();
 });
 
