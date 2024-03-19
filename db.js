@@ -1,6 +1,5 @@
 const pg = require("pg");
-
-pg.defaults.ssl = true;
+const fs = require("fs");
 
 const config_testing = {
   user: "sjjstaff",
@@ -16,6 +15,10 @@ const config_developing = {
   password: "AVNS_-GWAu0hX_V8M32qsPQj",
   port: 25060,
   host: "jiojio-do-user-15809025-0.c.db.ondigitalocean.com",
+  ssl: {
+    rejectUnauthorized: false,
+    ca: fs.readFileSync("./sslcert/sportjiojio_site.crt"),
+  },
 };
 
 const pool = new pg.Pool(config_developing);
