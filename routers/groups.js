@@ -9,7 +9,7 @@ router.get("/", async (req, res, next) => {
     var result = await pool.query("SELECT * from groups limit 100");
     for (let i = 0; i < result.rowCount; i++) {
       const mb_rst = await pool.query(
-        `SELECT u.id, u.name from users as u, user_group_record as ugr WHERE ugr.gid = '${result.rows[i].id}' AND ugr.uid = u.id`
+        `SELECT u.id, u.name, u.pic_url from users as u, user_group_record as ugr WHERE ugr.gid = '${result.rows[i].id}' AND ugr.uid = u.id`
       );
       const pnum_rst = await pool.query(
         `SELECT COUNT(*) as num from posts WHERE group_id = '${result.rows[i].id}'`
@@ -34,7 +34,7 @@ router.get("/groupId/:groupId", async (req, res, next) => {
       res.send({ result: "no group found", status: "fail" });
     else {
       const mb_rst = await pool.query(
-        `SELECT u.id, u.name from users as u, user_group_record as ugr WHERE ugr.gid = '${groupId}' AND ugr.uid = u.id`
+        `SELECT u.id, u.name, u.pic_url from users as u, user_group_record as ugr WHERE ugr.gid = '${groupId}' AND ugr.uid = u.id`
       );
       const pnum_rst = await pool.query(
         `SELECT COUNT(*) as num from posts WHERE group_id = '${groupId}'`

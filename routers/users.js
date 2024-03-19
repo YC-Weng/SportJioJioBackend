@@ -54,11 +54,18 @@ router.get("/userid/:userId", async (req, res, next) => {
 
 router.post("/create", async (req, res, next) => {
   try {
-    const { userName, userId } = req.body;
-    const result = await pool.query(
-      `INSERT into users (id, name) values ('${userId}', '${userName}')`
-    );
-    res.send({ status: "success" });
+    const { userName, userId, userPicUrl } = req.body;
+    if (userName == null) res.send({ status: "fail" });
+    else {
+      const result = await pool.query(
+        `INSERT into users (id, name${
+          userPicUrl == null ? ", pic_url" : ""
+        }) values ('${userId}', '${userName}'${
+          userPicUrl == null ? `, '${userPicUrl}'` : ""
+        })`
+      );
+      res.send({ status: "success" });
+    }
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
@@ -86,16 +93,21 @@ router.post("/delete", async (req, res, next) => {
 router.put("/update/userid/:userId", async (req, res, next) => {
   try {
     const userId = req.params.userId;
-    const userName = req.body.userName;
+    const { userName, userPicUrl } = req.body;
     const result = await pool.query(
       `SELECT * from users WHERE id = '${userId}'`
     );
     if (result.rowCount == 0)
       res.send({ result: "no user found", status: "fail" });
     else {
-      await pool.query(
-        `UPDATE users SET name = '${userName}' WHERE id = '${userId}'`
-      );
+      if (userName != null)
+        await pool.query(
+          `UPDATE users SET name = '${userName}' WHERE id = '${userId}'`
+        );
+      if (userPicUrl != null)
+        await pool.query(
+          `UPDATE users SET pic_url = '${userPicUrl}' WHERE id = '${userId}'`
+        );
       res.send({ status: "success" });
     }
   } catch (error) {
