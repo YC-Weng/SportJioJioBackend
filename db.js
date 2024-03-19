@@ -1,4 +1,6 @@
-const { Pool } = require("pg");
+const pg = require("pg");
+
+pg.defaults.ssl = true;
 
 const config_testing = {
   user: "sjjstaff",
@@ -16,6 +18,6 @@ const config_developing = {
   host: "jiojio-do-user-15809025-0.c.db.ondigitalocean.com",
 };
 
-const pool = new Pool(config_developing);
+const pool = new pg.Pool(config_developing);
 
 module.exports = { pool };
