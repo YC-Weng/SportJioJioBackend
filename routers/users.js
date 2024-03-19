@@ -11,7 +11,11 @@ router.get("/", async (req, res, next) => {
       const group_rst = await pool.query(
         `SELECT g.id, g.name from user_group_record as ugr, groups as g WHERE ugr.uid = '${result.rows[i].id}' AND ugr.gid = g.id`
       );
+      const pnum_rst = await pool.query(
+        `SELECT COUNT(*) as num from posts WHERE launcher_id='${result.rows[i].id}'`
+      );
       result.rows[i].groups = group_rst.rows;
+      result.rows[i].post_num = group_rst.rows[0].num;
     }
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
@@ -32,7 +36,11 @@ router.get("/userid/:userId", async (req, res, next) => {
       const group_rst = await pool.query(
         `SELECT g.id, g.name from user_group_record as ugr, groups as g WHERE ugr.uid = '${userId}' AND ugr.gid = g.id`
       );
+      const pnum_rst = await pool.query(
+        `SELECT COUNT(*) as num from posts WHERE launcher_id='${result.rows[i].id}'`
+      );
       result.rows[0].groups = group_rst.rows;
+      result.rows[0].post_num = pnum_rst.rows[0].num;
       res.send({
         result: result.rows[0],
         status: "success",

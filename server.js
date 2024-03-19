@@ -34,6 +34,10 @@ app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 
+app.get("/default_profile", (req, res, next) => {
+  res.sendFile("./default_profile.png");
+});
+
 app.get("/", (req, res) => {
   res.send("Welcome to SportJioJio Backend!!");
 });

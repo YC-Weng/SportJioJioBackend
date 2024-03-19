@@ -1,12 +1,14 @@
 const express = require("express");
-const { Pool } = require("pg");
 const { pool } = require("../db");
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    var result = await pool.query("SELECT * from posts limit 100");
+    var result =
+      await pool.query(`SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, p.group_id, g.name as group_name,
+                        p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, users as u,
+                        groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id ORDER BY p.create_ts DESC limit 100`);
     for (let i = 0; i < result.rowCount; i++) {
       const post_rst = await pool.query(
         `SELECT u.id, u.name from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
@@ -24,7 +26,9 @@ router.get("/groupid/:groupId", async (req, res, next) => {
   try {
     const groupId = req.params.groupId;
     var result = await pool.query(
-      `SELECT * from posts WHERE group_id = '${groupId}'`
+      `SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, p.group_id, g.name as group_name,
+      p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, users as u,
+      groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.group_id = '${groupId}' ORDER BY p.create_ts DESC `
     );
     for (let i = 0; i < result.rowCount; i++) {
       const post_rst = await pool.query(
@@ -43,7 +47,9 @@ router.get("/postid/:postId", async (req, res, next) => {
   try {
     const postId = req.params.postId;
     const result_post = await pool.query(
-      `SELECT * from posts WHERE id = ${postId}`
+      `SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, p.group_id, g.name as group_name,
+      p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, users as u,
+      groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.id = ${postId}`
     );
     if (result_post.rowCount == 0)
       res.send({ result: "no post found", status: "fail" });
