@@ -26,6 +26,10 @@ app.use(express.json());
 app.use((req, res, next) => {
   console.log("Time: ", Date.now());
   console.log(`${req.method} ${req.url} ${req.ip}`);
+  console.log(`Body: `);
+  for (let key in req.body) {
+    console.log(`${key}: ${req.body[key]}`);
+  }
   next();
 });
 
