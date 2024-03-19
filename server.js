@@ -25,8 +25,7 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   console.log("Time: ", Date.now());
-  console.log(`${req.method} ${req.url} ${req.ip} 
-    body: ${req.body}`);
+  console.log(`${req.method} ${req.url} ${req.ip}`);
   next();
 });
 
@@ -35,7 +34,7 @@ app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 
 app.get("/default_profile", (req, res, next) => {
-  res.sendFile(__dirname + "default_profile.png");
+  res.sendFile(__dirname + "/default_profile.png");
 });
 
 app.get("/", (req, res) => {
