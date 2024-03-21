@@ -3,6 +3,8 @@ const https = require("https");
 
 const { pool } = require("../db");
 
+const TOKEN = process.env.LINE_TOKEN;
+
 const router = express.Router();
 
 router.post("/", async (req, res, next) => {
@@ -11,8 +13,8 @@ router.post("/", async (req, res, next) => {
     if (req.body.events[0].type === "message") {
       const replyToken = req.body.events[0].replyToken;
       console.log(`type: ${req.body.events[0].type} 
-        uid: ${req.body.events[0].userId}
-        gid: ${req.body.events[0].groupId}`);
+      uid: ${req.body.events[0].userId}
+      gid: ${req.body.events[0].groupId}`);
 
       const headers = {
         "Content-Type": "application/json",

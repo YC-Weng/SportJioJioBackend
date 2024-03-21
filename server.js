@@ -13,7 +13,6 @@ const lineRouter = require("./routers/line");
 
 var privateKey = fs.readFileSync("sslcert/sjj_cat.key", "utf8");
 var certificate = fs.readFileSync("sslcert/sjj_cat.crt", "utf8");
-const TOKEN = process.env.LINE_TOKEN;
 const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
