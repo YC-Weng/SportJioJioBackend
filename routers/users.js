@@ -57,6 +57,7 @@ router.post("/create", async (req, res, next) => {
     const { userName, userId, userPicUrl } = req.body;
     if (userName == null) res.send({ status: "fail" });
     else {
+      console.log(userPicUrl);
       console.log(
         `INSERT into users (id, name${
           userPicUrl == null ? ", pic_url" : ""
