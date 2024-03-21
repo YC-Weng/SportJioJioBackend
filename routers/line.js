@@ -13,8 +13,8 @@ router.post("/", async (req, res, next) => {
     if (req.body.events[0].type === "message") {
       const replyToken = req.body.events[0].replyToken;
       console.log(`type: ${req.body.events[0].type} 
-      uid: ${req.body.events[0].userId}
-      gid: ${req.body.events[0].groupId}`);
+      uid: ${req.body.events[0].source.userId}
+      gid: ${req.body.events[0].source.groupId}`);
 
       const headers = {
         "Content-Type": "application/json",
