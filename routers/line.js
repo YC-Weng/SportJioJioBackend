@@ -40,7 +40,7 @@ router.post("/", async (req, res, next) => {
       // Define our request
       const request = https.request(webhookOptions, (res) => {
         res.on("data", (d) => {
-          console.log(d);
+          process.stdout.write(d);
         });
       });
 
