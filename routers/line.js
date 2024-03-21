@@ -8,23 +8,41 @@ const TOKEN = process.env.LINE_TOKEN;
 
 const router = express.Router();
 
+const send_reply = (dataString) => {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + TOKEN,
+  };
+  const webhookOptions = {
+    hostname: "api.line.me",
+    path: "/v2/bot/message/reply",
+    method: "POST",
+    headers: headers,
+    body: dataString,
+  };
+
+  const request = https.request(webhookOptions);
+
+  request.on("error", (err) => {
+    console.error(err);
+  });
+
+  request.write(dataString);
+  request.end();
+};
+
 router.post("/", async (req, res, next) => {
   try {
     res.send("HTTP POST request sent to the webhook URL!");
     const replyToken = req.body.events[0].replyToken;
-    var dataString = {};
 
     if (req.body.events[0].type === "message") {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + TOKEN,
-      };
-
       if (req.body.events[0].message.text == "揪揪") {
-        dataString = JSON.stringify({
+        const dataString = JSON.stringify({
           replyToken: replyToken,
           messages: [menu],
         });
+        send_reply(dataString);
       } else if (
         req.body.events[0].message.text.startsWith("sjj setgroupname")
       ) {
@@ -45,25 +63,10 @@ router.post("/", async (req, res, next) => {
             replyToken: replyToken,
             messages: [{ type: "text", text: `無法更新群組名` }],
           });
+        } finally {
+          send_reply(dataString);
         }
       }
-
-      const webhookOptions = {
-        hostname: "api.line.me",
-        path: "/v2/bot/message/reply",
-        method: "POST",
-        headers: headers,
-        body: dataString,
-      };
-
-      const request = https.request(webhookOptions);
-
-      request.on("error", (err) => {
-        console.error(err);
-      });
-
-      request.write(dataString);
-      request.end();
     } else if (
       req.body.events[0].type === "join" &&
       req.body.events[0].source.type === "group"
