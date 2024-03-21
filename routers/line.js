@@ -29,7 +29,7 @@ router.post("/", async (req, res, next) => {
       ) {
         const name = req.body.events[0].message.text.split(" ")[2].slice(1, -1);
         await pool.query(
-          `UPDATE groups SET name = '${name}' WHERE id = '${req.body.events[0].source.groupId.split(
+          `UPDATE groups SET name = '${name}' WHERE id = '${req.body.events[0].source.groupId.slice(
             1
           )}'`
         );
@@ -63,7 +63,7 @@ router.post("/", async (req, res, next) => {
       req.body.events[0].type === "join" &&
       req.body.events[0].source.type === "group"
     ) {
-      const groupId = req.body.events[0].source.groupId.split(1);
+      const groupId = req.body.events[0].source.groupId.slice(1);
       await pool.query(
         `INSERT INTO groups (id, name) values ('${groupId}', 'default')`
       );
