@@ -56,11 +56,7 @@ router.post("/", async (req, res, next) => {
         body: dataString,
       };
 
-      const request = https.request(webhookOptions, (res) => {
-        res.on("data", (d) => {
-          process.stdout.write(d);
-        });
-      });
+      const request = https.request(webhookOptions);
 
       request.on("error", (err) => {
         console.error(err);
