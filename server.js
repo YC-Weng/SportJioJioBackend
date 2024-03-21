@@ -10,11 +10,9 @@ const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
 const groupsRouter = require("./routers/groups");
 
-var privateKey = fs.readFileSync("sslcert/sportjiojio.key", "utf8");
-var certificate = fs.readFileSync("sslcert/sportjiojio_site.crt", "utf8");
-const TOKEN =
-  "7zt2lErH/nyFGDOH7nINASCLFu1bvtdWKhSpl/eqCwRmRER0BxU5+S5acla5TVSfenjhPfShrECO1aFp/OL77OXDeXQk+qDCMA/T7x/tnfeqZyoewjj75CfKTWow8MzBsfMzUW5xSMeDiR7DRc896QdB04t89/1O/w1cDnyilFU=";
-
+var privateKey = fs.readFileSync("sslcert/sjj_cat.key", "utf8");
+var certificate = fs.readFileSync("sslcert/sjj_cat.crt", "utf8");
+const TOKEN = process.env.LINE_TOKEN;
 const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
@@ -49,7 +47,7 @@ app.get("/default_profile", (req, res, next) => {
   res.sendFile(__dirname + "/default_profile.png");
 });
 
-app.post("/webhook", function (req, res) {
+app.post("/linewebhook", function (req, res) {
   res.send("HTTP POST request sent to the webhook URL!");
   // If the user sends a message to your bot, send a reply message
   if (req.body.events[0].type === "message") {
