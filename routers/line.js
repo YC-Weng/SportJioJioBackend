@@ -2,6 +2,7 @@ const express = require("express");
 const https = require("https");
 
 const { pool } = require("../db");
+const { menu } = require("../uti");
 
 const TOKEN = process.env.LINE_TOKEN;
 
@@ -10,57 +11,33 @@ const router = express.Router();
 router.post("/", async (req, res, next) => {
   try {
     res.send("HTTP POST request sent to the webhook URL!");
-    if (req.body.events[0].type === "message") {
-      const replyToken = req.body.events[0].replyToken;
-      console.log(`type: ${req.body.events[0].type} 
-      uid: ${req.body.events[0].source.userId}
-      gid: ${req.body.events[0].source.groupId}`);
+    const replyToken = req.body.events[0].replyToken;
 
+    if (req.body.events[0].type === "message") {
       const headers = {
         "Content-Type": "application/json",
         Authorization: "Bearer " + TOKEN,
       };
 
-      const dataString = JSON.stringify({
-        replyToken: replyToken,
-        messages: [
-          {
-            type: "template",
-            altText: "This is a buttons template",
-            template: {
-              type: "buttons",
-              thumbnailImageUrl: "https://example.com/bot/images/image.jpg",
-              imageAspectRatio: "rectangle",
-              imageSize: "cover",
-              imageBackgroundColor: "#FFFFFF",
-              title: "Menu",
-              text: "Please select",
-              defaultAction: {
-                type: "uri",
-                label: "View detail",
-                uri: "http://example.com/page/123",
-              },
-              actions: [
-                {
-                  type: "postback",
-                  label: "Buy",
-                  data: "action=buy&itemid=123",
-                },
-                {
-                  type: "postback",
-                  label: "Add to cart",
-                  data: "action=add&itemid=123",
-                },
-                {
-                  type: "uri",
-                  label: "View detail",
-                  uri: "http://example.com/page/123",
-                },
-              ],
-            },
-          },
-        ],
-      });
+      if (req.body.events[0].message.text == "揪揪") {
+        const dataString = JSON.stringify({
+          replyToken: replyToken,
+          messages: [menu],
+        });
+      } else if (
+        req.body.events[0].message.text.startsWith("sjj setgroupname")
+      ) {
+        const name = req.body.events[0].message.text.split(" ")[2].slice(1, -1);
+        await pool.query(
+          `UPDATE groups SET name = '${name}' WHERE id = '${req.body.events[0].source.groupId.split(
+            1
+          )}'`
+        );
+        const dataString = JSON.stringify({
+          replyToken: replyToken,
+          messages: [{ type: "text", text: `已將群組名稱設置為${name}` }],
+        });
+      }
 
       const webhookOptions = {
         hostname: "api.line.me",
@@ -82,6 +59,14 @@ router.post("/", async (req, res, next) => {
 
       request.write(dataString);
       request.end();
+    } else if (
+      req.body.events[0].type === "join" &&
+      req.body.events[0].source.type === "group"
+    ) {
+      const groupId = req.body.events[0].source.groupId.split(1);
+      await pool.query(
+        `INSERT INTO groups (id, name) values ('${groupId}', 'default')`
+      );
     }
   } catch (error) {
     console.log(error);

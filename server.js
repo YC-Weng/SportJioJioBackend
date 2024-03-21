@@ -48,6 +48,10 @@ app.get("/default_profile", (req, res, next) => {
   res.sendFile(__dirname + "/default_profile.png");
 });
 
+app.get("/sportjiojiologo", (req, res, next) => {
+  res.sendFile(__dirname + "/sportjiojiologo.png");
+});
+
 app.get("/", (req, res) => {
   res.send("Welcome to SportJioJio Backend!!");
 });
