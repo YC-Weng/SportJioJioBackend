@@ -12,6 +12,7 @@ router.post("/", async (req, res, next) => {
   try {
     res.send("HTTP POST request sent to the webhook URL!");
     const replyToken = req.body.events[0].replyToken;
+    var dataString = {};
 
     if (req.body.events[0].type === "message") {
       const headers = {
@@ -20,7 +21,7 @@ router.post("/", async (req, res, next) => {
       };
 
       if (req.body.events[0].message.text == "揪揪") {
-        const dataString = JSON.stringify({
+        dataString = JSON.stringify({
           replyToken: replyToken,
           messages: [menu],
         });
@@ -33,7 +34,7 @@ router.post("/", async (req, res, next) => {
             1
           )}'`
         );
-        const dataString = JSON.stringify({
+        dataString = JSON.stringify({
           replyToken: replyToken,
           messages: [{ type: "text", text: `已將群組名稱設置為${name}` }],
         });
