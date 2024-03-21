@@ -9,6 +9,7 @@ const cors = require("cors");
 const postsRouter = require("./routers/posts");
 const usersRouter = require("./routers/users");
 const groupsRouter = require("./routers/groups");
+const lineRouter = require("./routers/line");
 
 var privateKey = fs.readFileSync("sslcert/sjj_cat.key", "utf8");
 var certificate = fs.readFileSync("sslcert/sjj_cat.crt", "utf8");
@@ -42,64 +43,10 @@ app.use((req, res, next) => {
 app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
+app.use("/linewebhook", lineRouter);
 
 app.get("/default_profile", (req, res, next) => {
   res.sendFile(__dirname + "/default_profile.png");
-});
-
-app.post("/linewebhook", function (req, res) {
-  res.send("HTTP POST request sent to the webhook URL!");
-  // If the user sends a message to your bot, send a reply message
-  if (req.body.events[0].type === "message") {
-    // You must stringify reply token and message data to send to the API server
-    const dataString = JSON.stringify({
-      // Define reply token
-      replyToken: req.body.events[0].replyToken,
-      // Define reply messages
-      messages: [
-        {
-          type: "text",
-          text: "Hello, user",
-        },
-        {
-          type: "text",
-          text: "May I help you?",
-        },
-      ],
-    });
-
-    // Request header. See Messaging API reference for specification
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + TOKEN,
-    };
-
-    const webhookOptions = {
-      hostname: "api.line.me",
-      path: "/v2/bot/message/reply",
-      method: "POST",
-      headers: headers,
-      body: dataString,
-    };
-
-    // Define our request
-    const request = https.request(webhookOptions, (res) => {
-      res.on("data", (d) => {
-        process.stdout.write(d);
-      });
-    });
-
-    // Handle error
-    // request.on() is a function that is called back if an error occurs
-    // while sending a request to the API server.
-    request.on("error", (err) => {
-      console.error(err);
-    });
-
-    // Finally send the request and the data we defined
-    request.write(dataString);
-    request.end();
-  }
 });
 
 app.get("/", (req, res) => {
