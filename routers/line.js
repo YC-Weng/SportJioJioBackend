@@ -29,15 +29,23 @@ router.post("/", async (req, res, next) => {
         req.body.events[0].message.text.startsWith("sjj setgroupname")
       ) {
         const name = req.body.events[0].message.text.split(" ")[2].slice(1, -1);
-        await pool.query(
-          `UPDATE groups SET name = '${name}' WHERE id = '${req.body.events[0].source.groupId.slice(
-            1
-          )}'`
-        );
-        dataString = JSON.stringify({
-          replyToken: replyToken,
-          messages: [{ type: "text", text: `已將群組名稱設置為${name}` }],
-        });
+        try {
+          await pool.query(
+            `UPDATE groups SET name = '${name}' WHERE id = '${req.body.events[0].source.groupId.slice(
+              1
+            )}'`
+          );
+          dataString = JSON.stringify({
+            replyToken: replyToken,
+            messages: [{ type: "text", text: `已將群組名稱設置為 ${name} ` }],
+          });
+        } catch (err) {
+          console.log(err);
+          dataString = JSON.stringify({
+            replyToken: replyToken,
+            messages: [{ type: "text", text: `無法更新群組名` }],
+          });
+        }
       }
 
       const webhookOptions = {
