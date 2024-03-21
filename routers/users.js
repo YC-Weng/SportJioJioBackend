@@ -57,19 +57,11 @@ router.post("/create", async (req, res, next) => {
     const { userName, userId, userPicUrl } = req.body;
     if (userName == null) res.send({ status: "fail" });
     else {
-      console.log(userPicUrl);
-      console.log(
-        `INSERT into users (id, name${
-          userPicUrl == null ? ", pic_url" : ""
-        }) values ('${userId}', '${userName}'${
-          userPicUrl == null ? `, '${userPicUrl}'` : ""
-        })`
-      );
       const result = await pool.query(
         `INSERT into users (id, name${
-          userPicUrl == null ? ", pic_url" : ""
+          userPicUrl != null ? ", pic_url" : ""
         }) values ('${userId}', '${userName}'${
-          userPicUrl == null ? `, '${userPicUrl}'` : ""
+          userPicUrl != null ? `, '${userPicUrl}'` : ""
         })`
       );
       res.send({ status: "success" });
