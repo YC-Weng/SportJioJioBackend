@@ -136,7 +136,12 @@ const create_user = async (data, userId, groupId) => {
     if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
     else reply_texts.push(`${data.displayName} 已加入群組`);
   } finally {
-    send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
+    send_push_msg(
+      gen_push_datastring(
+        groupId === open_groupid ? "U" + groupId.split("-").join("") : "C" + groupId.split("-").join(""),
+        reply_texts
+      )
+    );
   }
 };
 
