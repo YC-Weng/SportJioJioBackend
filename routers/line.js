@@ -4,6 +4,7 @@ const axios = require("axios");
 
 const { pool } = require("../db");
 const { menu } = require("../uti");
+const { userInfo } = require("os");
 
 const TOKEN = process.env.LINE_TOKEN;
 const headers = {
@@ -41,18 +42,24 @@ const gen_datastring = (replyToken, texts) => {
   });
 };
 
-const get_group_member = (groupId) => {
-  const options = {
-    hostname: "api.line.me",
-    path: `/v2/bot/group/${groupId}/summary`,
-    method: "GET",
-    headers: headers,
-  };
+const get_group_info = (groupId) => {
   return new Promise((resolve) => {
     axios
       .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
       .then((res) => {
-        console.log(res.data);
+        resolve(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+};
+
+const get_group_member = (groupId, userId) => {
+  return new Promise((resolve) => {
+    axios
+      .get(`https://api.line.me/v2/bot/group/${groupId}/member/${userId}`, { headers: headers })
+      .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
@@ -93,7 +100,7 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      get_group_member(req.body.events[0].source.groupId).then((data) => {
+      get_group_info(req.body.events[0].source.groupId).then((data) => {
         try {
           pool.query(
             `INSERT INTO groups (id, name, pic_url) values ('${data.groupId.slice(1)}', '${data.groupName}', '${
@@ -108,6 +115,33 @@ router.post("/", async (req, res, next) => {
           send_reply(gen_datastring(replyToken, reply_texts));
         }
       });
+    } else if (req.body.events[0].type === "postback") {
+      if (req.body.events[0].postback.data.split("&")[0].split("=")[1] === "createuser") {
+        const groupId = req.body.events[0].postback.data.split("&")[1].split("=")[1];
+        const userId = req.body.events[0].source.userId.slice(1);
+        try {
+          get_group_member("C" + groupId, "U" + userId).then((data) => {
+            try {
+              console.log(data);
+              pool.query(
+                `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
+              );
+            } catch (err) {
+              console.log(err);
+            }
+            try {
+              pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
+            } catch (err) {
+              console.log(err);
+            }
+            reply_texts.push(`${data.displayName} 已加入群組`);
+          });
+        } catch (err) {
+          console.log(err);
+        } finally {
+          send_reply(gen_datastring(replyToken, reply_texts));
+        }
+      }
     }
   } catch (error) {
     console.log(error);

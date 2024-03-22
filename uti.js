@@ -26,6 +26,11 @@ const menu = (groupId) => {
           label: "查看揪揪",
           uri: `${frontend_url}/listjiojio?groupId=${groupId}`,
         },
+        {
+          type: "postback",
+          label: "建立帳號",
+          data: `action=createuser&groupId=${groupId}`,
+        },
       ],
     },
   };
