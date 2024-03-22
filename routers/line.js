@@ -92,8 +92,7 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      let group_info = await get_group_member(req.body.events[0].source.groupId);
-      console.log(group_info);
+      console.log(get_group_member(req.body.events[0].source.groupId));
       try {
         await pool.query(
           `INSERT INTO groups (id, name, pic_url) values ('${group_info.groupId.split(1)}', '${
