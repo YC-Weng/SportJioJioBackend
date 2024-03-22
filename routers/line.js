@@ -48,14 +48,14 @@ const get_group_member = (groupId) => {
     headers: headers,
   };
   const req = https.request(options, (res) => {
-    res.on("data", (d) => {
-      console.log(d);
-      return d;
-    });
-    res.on("error", (err) => {
-      console.log(err);
-      return;
-    });
+    res.setEncoding("utf8");
+
+    let data = "";
+
+    res.on("data", (chunk) => (data += chunk));
+
+    res.on("end", () => console.log(data));
+    return data;
   });
 };
 
