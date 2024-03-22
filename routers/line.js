@@ -41,7 +41,6 @@ const send_push_msg = (dataString) => {
     headers: headers,
     body: dataString,
   };
-  console.log(dataString);
 
   const request = https.request(webhookOptions);
 
