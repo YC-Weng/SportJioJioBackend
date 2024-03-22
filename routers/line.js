@@ -100,9 +100,9 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      get_group_info(req.body.events[0].source.groupId).then((data) => {
+      get_group_info(req.body.events[0].source.groupId).then(async (data) => {
         try {
-          pool.query(
+          await pool.query(
             `INSERT INTO groups (id, name, pic_url) values ('${data.groupId.slice(1)}', '${data.groupName}', '${
               data.pictureUrl
             }')`
@@ -120,22 +120,24 @@ router.post("/", async (req, res, next) => {
         const groupId = req.body.events[0].postback.data.split("&")[1].split("=")[1];
         const userId = req.body.events[0].source.userId.slice(1);
         try {
-          get_group_member("C" + groupId, "U" + userId).then((data) => {
+          get_group_member("C" + groupId, "U" + userId).then(async (data) => {
             try {
-              const rst = pool.query(`SELECT * from users WHERE id = '${userId}'`);
+              const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
               console.log(rst.rows);
               if (rst.rowCount == 0)
-                pool.query(
+                await pool.query(
                   `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
                 );
             } catch (err) {
               console.log(err);
             }
             try {
-              const rst = pool.query(`SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`);
+              const rst = await pool.query(
+                `SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`
+              );
               console.log(rst.rows);
               if (rst.rowCount == 0)
-                pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
+                await pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
             } catch (err) {
               console.log(err);
             }
