@@ -194,9 +194,9 @@ router.post("/", async (req, res, next) => {
         const groupId = req.body.events[0].postback.data.split("&")[1].split("=")[1];
         const userId = req.body.events[0].source.userId.slice(1);
         if (groupId === open_groupid) {
-          get_user_profile("U" + userId).then(create_user(data, userId, groupId));
+          get_user_profile("U" + userId).then((data) => create_user(data, userId, groupId));
         } else {
-          get_group_member("C" + groupId, "U" + userId).then(create_user(data, userId, groupId));
+          get_group_member("C" + groupId, "U" + userId).then((data) => create_user(data, userId, groupId));
         }
       }
     }
