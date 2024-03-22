@@ -42,6 +42,7 @@ router.post("/", async (req, res, next) => {
           req.body.events[0].source.groupId != null
             ? req.body.events[0].source.groupId.slice(1)
             : "";
+        console.log(groupId);
         const dataString = JSON.stringify({
           replyToken: replyToken,
           messages: [menu(groupId)],
