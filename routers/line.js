@@ -93,7 +93,9 @@ router.post("/", async (req, res, next) => {
       const group_info = get_group_member(req.body.events[0].source.groupId);
       try {
         await pool.query(
-          `INSERT INTO groups (id, name) values ('${group_info.groupId.split(1)}', '${group_info.groupName}')`
+          `INSERT INTO groups (id, name, pic_url) values ('${group_info.groupId.split(1)}', '${
+            group_info.groupName
+          }', '${group_info.pictureUrl}')`
         );
         reply_texts.push(`已建立群組`);
       } catch (err) {

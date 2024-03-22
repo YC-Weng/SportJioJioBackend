@@ -11,9 +11,7 @@ router.get("/", async (req, res, next) => {
       const mb_rst = await pool.query(
         `SELECT u.id, u.name, u.pic_url from users as u, user_group_record as ugr WHERE ugr.gid = '${result.rows[i].id}' AND ugr.uid = u.id`
       );
-      const pnum_rst = await pool.query(
-        `SELECT COUNT(*) as num from posts WHERE group_id = '${result.rows[i].id}'`
-      );
+      const pnum_rst = await pool.query(`SELECT COUNT(*) as num from posts WHERE group_id = '${result.rows[i].id}'`);
       result.rows[i].member = mb_rst.rows;
       result.rows[i].post_num = pnum_rst.rows[0].num;
     }
@@ -27,18 +25,13 @@ router.get("/", async (req, res, next) => {
 router.get("/groupId/:groupId", async (req, res, next) => {
   try {
     const groupId = req.params.groupId;
-    var result = await pool.query(
-      `SELECT * from groups WHERE id = '${groupId}'`
-    );
-    if (result.rowCount == 0)
-      res.send({ result: "no group found", status: "fail" });
+    var result = await pool.query(`SELECT * from groups WHERE id = '${groupId}'`);
+    if (result.rowCount == 0) res.send({ result: "no group found", status: "fail" });
     else {
       const mb_rst = await pool.query(
         `SELECT u.id, u.name, u.pic_url from users as u, user_group_record as ugr WHERE ugr.gid = '${groupId}' AND ugr.uid = u.id`
       );
-      const pnum_rst = await pool.query(
-        `SELECT COUNT(*) as num from posts WHERE group_id = '${groupId}'`
-      );
+      const pnum_rst = await pool.query(`SELECT COUNT(*) as num from posts WHERE group_id = '${groupId}'`);
       result.rows[0].member = mb_rst.rows;
       result.rows[0].post_num = pnum_rst.rows[0].num;
       res.send({
@@ -54,9 +47,11 @@ router.get("/groupId/:groupId", async (req, res, next) => {
 
 router.post("/create", async (req, res, next) => {
   try {
-    const { groupId, groupName } = req.body;
+    const { groupId, groupName, groupPicUrl } = req.body;
     const result = await pool.query(
-      `INSERT into groups (id, name) values ('${groupId}', '${groupName}')`
+      `INSERT into groups (id, name${groupPicUrl != null ? `, pic_url` : ``}) values ('${groupId}', '${groupName}'${
+        groupPicUrl != null ? `, '${groupPicUrl}'` : ``
+      })`
     );
     res.send({ status: "success" });
   } catch (error) {
@@ -68,11 +63,8 @@ router.post("/create", async (req, res, next) => {
 router.post("/delete", async (req, res, next) => {
   try {
     const groupId = req.body.groupId;
-    const result = await pool.query(
-      `SELECT * from groups WHERE id = '${groupId}'`
-    );
-    if (result.rowCount == 0)
-      res.send({ result: "no group found", status: "fail" });
+    const result = await pool.query(`SELECT * from groups WHERE id = '${groupId}'`);
+    if (result.rowCount == 0) res.send({ result: "no group found", status: "fail" });
     else {
       await pool.query(`DELETE from groups WHERE id = '${groupId}'`);
       res.send({ status: "success" });
@@ -86,15 +78,14 @@ router.post("/delete", async (req, res, next) => {
 router.put("/update/groupid/:groupId", async (req, res, next) => {
   try {
     const groupId = req.params.groupId;
-    const groupName = req.body.groupName;
-    const result = await pool.query(
-      `SELECT * from groups WHERE id = '${groupId}'`
-    );
-    if (result.rowCount == 0)
-      res.send({ result: "no group found", status: "fail" });
+    const { groupName, groupPicUrl } = req.body;
+    const result = await pool.query(`SELECT * from groups WHERE id = '${groupId}'`);
+    if (result.rowCount == 0) res.send({ result: "no group found", status: "fail" });
     else {
       const result = await pool.query(
-        `UPDATE groups SET name = '${groupName}' WHERE id = '${groupId}'`
+        `UPDATE groups SET name = '${groupName}'${
+          groupPicUrl != null ? `, pic_url = '${groupPicUrl}'` : ``
+        } WHERE id = '${groupId}'`
       );
       res.send({ status: "success" });
     }
