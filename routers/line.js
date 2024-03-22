@@ -41,7 +41,7 @@ const gen_datastring = (replyToken, texts) => {
   });
 };
 
-const get_group_member = async (groupId) => {
+const get_group_member = (groupId) => {
   const options = {
     hostname: "api.line.me",
     path: `/v2/bot/group/${groupId}/summary`,
@@ -95,9 +95,8 @@ router.post("/", async (req, res, next) => {
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
       get_group_member(req.body.events[0].source.groupId).then((data) => {
         try {
-          console.log(data.groupId);
           pool.query(
-            `INSERT INTO groups (id, name, pic_url) values ('${data.groupId.split(1)}', '${data.groupName}', '${
+            `INSERT INTO groups (id, name, pic_url) values ('${data.groupId.slice(1)}', '${data.groupName}', '${
               data.pictureUrl
             }')`
           );
