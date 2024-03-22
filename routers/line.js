@@ -148,8 +148,8 @@ router.post("/", async (req, res, next) => {
       if (req.body.events[0].postback.data.split("&")[0].split("=")[1] === "createuser") {
         const groupId = req.body.events[0].postback.data.split("&")[1].split("=")[1];
         const userId = req.body.events[0].source.userId.slice(1);
-        try {
-          get_group_member("C" + groupId, "U" + userId).then(async (data) => {
+        get_group_member("C" + groupId, "U" + userId).then(async (data) => {
+          try {
             try {
               const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
               if (rst.rowCount == 0)
@@ -169,17 +169,17 @@ router.post("/", async (req, res, next) => {
               console.log(err);
             }
             reply_texts.push(`${data.displayName} 已加入群組`);
-          });
-        } catch (err) {
-          console.log(err);
-        } finally {
-          send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
-        }
+          } catch (err) {
+            console.log(err);
+            reply_texts.push(`${data.displayName} 已加入群組`);
+          } finally {
+            send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
+          }
+        });
       }
     }
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
   }
 });
-
 module.exports = router;
