@@ -48,7 +48,7 @@ const get_group_member = async (groupId) => {
     method: "GET",
     headers: headers,
   };
-  await axios
+  axios
     .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
     .then((res) => {
       console.log(res.data);
@@ -92,7 +92,8 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      console.log(get_group_member(req.body.events[0].source.groupId));
+      let group_info = await get_group_member(req.body.events[0].source.groupId);
+      console.log(group_info);
       try {
         await pool.query(
           `INSERT INTO groups (id, name, pic_url) values ('${group_info.groupId.split(1)}', '${
