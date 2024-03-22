@@ -1,4 +1,4 @@
-const frontend_url = "https://liff.line.me/2003890387-46rMAvQQ";
+const frontend_url = "https://liff.line.me/2003890387-36qLbEdd";
 
 const menu_group = (groupId) => {
   return {
