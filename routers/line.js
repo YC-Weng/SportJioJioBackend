@@ -33,11 +33,39 @@ const send_reply = (dataString) => {
   request.end();
 };
 
-const gen_datastring = (replyToken, texts) => {
+const send_push_msg = (dataString) => {
+  const webhookOptions = {
+    hostname: "api.line.me",
+    path: "/v2/bot/message/push",
+    method: "POST",
+    headers: headers,
+    body: dataString,
+  };
+
+  const request = https.request(webhookOptions);
+
+  request.on("error", (err) => {
+    console.error(err);
+  });
+
+  request.write(dataString);
+  request.end();
+};
+
+const gen_reply_datastring = (replyToken, texts) => {
   const msg = [];
   for (let i = 0; i < texts.length; i++) msg.push({ type: "text", text: texts[i] });
   return JSON.stringify({
     replyToken: replyToken,
+    messages: msg,
+  });
+};
+
+const gen_push_datastring = (to, texts) => {
+  const msg = [];
+  for (let i = 0; i < texts.length; i++) msg.push({ type: "text", text: texts[i] });
+  return JSON.stringify({
+    to: to,
     messages: msg,
   });
 };
@@ -96,7 +124,7 @@ router.post("/", async (req, res, next) => {
           console.log(err);
           reply_texts.push(`無法更新群組名`);
         } finally {
-          send_reply(gen_datastring(replyToken, reply_texts));
+          send_reply(gen_reply_datastring(replyToken, reply_texts));
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
@@ -112,7 +140,7 @@ router.post("/", async (req, res, next) => {
           console.log(err);
           reply_texts.push(`已建立群組`);
         } finally {
-          send_reply(gen_datastring(replyToken, reply_texts));
+          send_reply(gen_reply_datastring(replyToken, reply_texts));
         }
       });
     } else if (req.body.events[0].type === "postback") {
@@ -144,8 +172,7 @@ router.post("/", async (req, res, next) => {
         } catch (err) {
           console.log(err);
         } finally {
-          console.log("here");
-          send_reply(gen_datastring(replyToken, reply_texts));
+          send_push_msg(gen_push_datastring("G" + groupId, reply_texts));
         }
       }
     }
