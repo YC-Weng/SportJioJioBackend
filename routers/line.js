@@ -138,7 +138,7 @@ const create_user = async (data, userId, groupId) => {
   } finally {
     send_push_msg(
       gen_push_datastring(
-        groupId === open_groupid ? "U" + groupId.split("-").join("") : "C" + groupId.split("-").join(""),
+        groupId === open_groupid ? "U" + userId.split("-").join("") : "C" + groupId.split("-").join(""),
         reply_texts
       )
     );
