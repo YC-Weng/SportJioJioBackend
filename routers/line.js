@@ -21,7 +21,7 @@ const send_reply = (dataString) => {
     headers: headers,
     body: dataString,
   };
-
+  console.log(dataString);
   const request = https.request(webhookOptions);
 
   request.on("error", (err) => {
