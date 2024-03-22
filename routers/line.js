@@ -172,7 +172,7 @@ router.post("/", async (req, res, next) => {
         } catch (err) {
           console.log(err);
         } finally {
-          const gid = "".join(groupId.split("-"));
+          const gid = groupId.split("-").join("");
           console.log(gid);
           send_push_msg(gen_push_datastring("C" + gid, reply_texts));
         }
