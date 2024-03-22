@@ -83,6 +83,7 @@ router.post("/", async (req, res, next) => {
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
       const groupId = req.body.events[0].source.groupId;
+      console.log(groupId);
       try {
         await pool.query(`INSERT INTO groups (id, name) values ('${groupId.slice(1)}', 'default')`);
         reply_texts.push(`已建立群組`);
