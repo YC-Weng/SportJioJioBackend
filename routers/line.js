@@ -48,16 +48,16 @@ const get_group_member = async (groupId) => {
     method: "GET",
     headers: headers,
   };
+  var rtn = {};
   await axios
     .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
     .then((res) => {
-      console.log(res.data);
-      return res.data;
+      rtn = res.data;
     })
     .catch((err) => {
       console.log(err);
-      return;
     });
+  return rtn;
 };
 
 router.post("/", async (req, res, next) => {
