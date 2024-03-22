@@ -122,15 +122,18 @@ router.post("/", async (req, res, next) => {
         try {
           get_group_member("C" + groupId, "U" + userId).then((data) => {
             try {
-              console.log(data);
-              pool.query(
-                `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
-              );
+              const rst = pool.query(`SELECT * from users WHERE id = '${userId}'`);
+              if (rst.rowCount == 0)
+                pool.query(
+                  `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
+                );
             } catch (err) {
               console.log(err);
             }
             try {
-              pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
+              const rst = pool.query(`SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`);
+              if (rst.rowCount == 0)
+                pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
             } catch (err) {
               console.log(err);
             }
