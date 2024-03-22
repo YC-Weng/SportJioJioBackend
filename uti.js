@@ -17,6 +17,11 @@ const menu_group = (groupId) => {
       },
       actions: [
         {
+          type: "postback",
+          label: "建立帳號",
+          data: `action=createuser&groupId=${groupId}`,
+        },
+        {
           type: "uri",
           label: "創建揪揪",
           uri: `${frontend_url}/createjiojio?groupId=${groupId}`,
@@ -25,11 +30,6 @@ const menu_group = (groupId) => {
           type: "uri",
           label: "查看揪揪",
           uri: `${frontend_url}/listjiojio?groupId=${groupId}`,
-        },
-        {
-          type: "postback",
-          label: "建立帳號",
-          data: `action=createuser&groupId=${groupId}`,
         },
       ],
     },
