@@ -38,12 +38,10 @@ router.post("/", async (req, res, next) => {
 
     if (req.body.events[0].type === "message") {
       if (req.body.events[0].message.text == "揪揪") {
-        console.log(req.body.events[0].source.groupId);
-        console.log(req.body.events[0].source.utouId);
         const groupId =
           req.body.events[0].source.groupId != null
             ? req.body.events[0].source.groupId.slice(1)
-            : req.body.events[0].source.utouId.slice(1);
+            : "";
         const dataString = JSON.stringify({
           replyToken: replyToken,
           messages: [menu(groupId)],
