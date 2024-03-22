@@ -34,9 +34,7 @@ const send_reply = (dataString) => {
 
 const gen_datastring = (replyToken, texts) => {
   const msg = [];
-  console.log(texts);
-  for (t in texts) msg.push({ type: "text", text: t });
-  console.log(msg);
+  for (let t in texts) msg.push({ type: "text", text: t });
   return JSON.stringify({
     replyToken: replyToken,
     messages: msg,
