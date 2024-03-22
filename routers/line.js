@@ -123,7 +123,6 @@ router.post("/", async (req, res, next) => {
           get_group_member("C" + groupId, "U" + userId).then(async (data) => {
             try {
               const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
-              console.log(rst.rows);
               if (rst.rowCount == 0)
                 await pool.query(
                   `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
@@ -135,7 +134,6 @@ router.post("/", async (req, res, next) => {
               const rst = await pool.query(
                 `SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`
               );
-              console.log(rst.rows);
               if (rst.rowCount == 0)
                 await pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
             } catch (err) {
@@ -146,6 +144,7 @@ router.post("/", async (req, res, next) => {
         } catch (err) {
           console.log(err);
         } finally {
+          console.log("here");
           send_reply(gen_datastring(replyToken, reply_texts));
         }
       }
