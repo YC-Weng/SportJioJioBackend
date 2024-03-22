@@ -93,23 +93,21 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      await get_group_member(req.body.events[0].source.groupId).then((res) => {
-        console.log(res);
+      get_group_member(req.body.events[0].source.groupId).then((data) => {
+        try {
+          pool.query(
+            `INSERT INTO groups (id, name, pic_url) values ('${data.groupId.split(1)}', '${data.groupName}', '${
+              data.pictureUrl
+            }')`
+          );
+          reply_texts.push(`已建立群組`);
+        } catch (err) {
+          console.log(err);
+          reply_texts.push(`已建立群組`);
+        } finally {
+          send_reply(gen_datastring(replyToken, reply_texts));
+        }
       });
-
-      try {
-        await pool.query(
-          `INSERT INTO groups (id, name, pic_url) values ('${group_info.groupId.split(1)}', '${
-            group_info.groupName
-          }', '${group_info.pictureUrl}')`
-        );
-        reply_texts.push(`已建立群組`);
-      } catch (err) {
-        console.log(err);
-        reply_texts.push(`已建立群組`);
-      } finally {
-        send_reply(gen_datastring(replyToken, reply_texts));
-      }
     }
   } catch (error) {
     console.log(error);
