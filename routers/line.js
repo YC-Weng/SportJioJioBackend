@@ -1,5 +1,6 @@
 const express = require("express");
 const https = require("https");
+const axios = require("axios");
 
 const { pool } = require("../db");
 const { menu } = require("../uti");
@@ -40,23 +41,23 @@ const gen_datastring = (replyToken, texts) => {
   });
 };
 
-const get_group_member = (groupId) => {
+const get_group_member = async (groupId) => {
   const options = {
     hostname: "api.line.me",
     path: `/v2/bot/group/${groupId}/summary`,
     method: "GET",
     headers: headers,
   };
-  const req = https.request(options, (res) => {
-    res.setEncoding("utf8");
-
-    let data = "";
-
-    res.on("data", (chunk) => (data += chunk));
-
-    res.on("end", () => console.log(data));
-    return data;
-  });
+  await axios
+    .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
+    .then((res) => {
+      console.log(res.data);
+      return res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+      return;
+    });
 };
 
 router.post("/", async (req, res, next) => {
