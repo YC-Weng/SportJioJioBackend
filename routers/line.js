@@ -172,7 +172,7 @@ router.post("/", async (req, res, next) => {
         } catch (err) {
           console.log(err);
         } finally {
-          send_push_msg(gen_push_datastring("G" + groupId, reply_texts));
+          send_push_msg(gen_push_datastring("C" + groupId, reply_texts));
         }
       }
     }
