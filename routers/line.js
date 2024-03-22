@@ -49,6 +49,7 @@ const get_group_member = (groupId) => {
   };
   const req = https.request(options, (res) => {
     res.on("data", (d) => {
+      console.log(d);
       return d;
     });
     res.on("error", (err) => {
