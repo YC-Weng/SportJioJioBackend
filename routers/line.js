@@ -3,7 +3,7 @@ const https = require("https");
 const axios = require("axios");
 
 const { pool } = require("../db");
-const { menu_group, menu_user } = require("../uti");
+const { menu_group } = require("../uti");
 const { userInfo } = require("os");
 
 const TOKEN = process.env.LINE_TOKEN;
@@ -97,6 +97,49 @@ const get_group_member = (groupId, userId) => {
   });
 };
 
+const get_user_profile = (userId) => {
+  return new Promise((resolve) => {
+    axios
+      .get(`https://api.line.me/v2/bot/profile/${userId}`, { headers: headers })
+      .then((res) => {
+        resolve(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+};
+
+const create_user = async (data, userId, groupId) => {
+  const reply_texts = [];
+  try {
+    try {
+      const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
+      if (rst.rowCount == 0)
+        await pool.query(
+          `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
+        );
+    } catch (err) {
+      console.log(err);
+    }
+    try {
+      const rst = await pool.query(`SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`);
+      if (rst.rowCount == 0)
+        await pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
+    } catch (err) {
+      console.log(err);
+    }
+    if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
+    else reply_texts.push(`${data.displayName} 已加入群組`);
+  } catch (err) {
+    console.log(err);
+    if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
+    else reply_texts.push(`${data.displayName} 已加入群組`);
+  } finally {
+    send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
+  }
+};
+
 router.post("/", async (req, res, next) => {
   try {
     res.send("HTTP POST request sent to the webhook URL!");
@@ -108,18 +151,12 @@ router.post("/", async (req, res, next) => {
       console.log(`text: ${req.body.events[0].message.text}`);
       const groupId =
         req.body.events[0].source.groupId != null ? req.body.events[0].source.groupId.slice(1) : open_groupid;
-      if (req.body.events[0].message.text === "揪揪" && req.body.events[0].source.type === "group") {
+
+      if (req.body.events[0].message.text === "揪揪") {
         send_reply(
           JSON.stringify({
             replyToken: replyToken,
             messages: [menu_group(groupId)],
-          })
-        );
-      } else if (req.body.events[0].message.text === "揪揪" && req.body.events[0].source.type === "user") {
-        send_reply(
-          JSON.stringify({
-            replyToken: replyToken,
-            messages: [menu_user(groupId)],
           })
         );
       } else if (req.body.events[0].message.text.startsWith("sjj setgroupname")) {
@@ -156,36 +193,11 @@ router.post("/", async (req, res, next) => {
       if (req.body.events[0].postback.data.split("&")[0].split("=")[1] === "createuser") {
         const groupId = req.body.events[0].postback.data.split("&")[1].split("=")[1];
         const userId = req.body.events[0].source.userId.slice(1);
-        get_group_member("C" + groupId, "U" + userId).then(async (data) => {
-          try {
-            try {
-              const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
-              if (rst.rowCount == 0)
-                await pool.query(
-                  `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
-                );
-            } catch (err) {
-              console.log(err);
-            }
-            try {
-              const rst = await pool.query(
-                `SELECT * from user_group_record WHERE uid = '${userId}' AND gid = '${groupId}'`
-              );
-              if (rst.rowCount == 0)
-                await pool.query(`INSERT INTO user_group_record (gid, uid) values ('${groupId}', '${userId}')`);
-            } catch (err) {
-              console.log(err);
-            }
-            if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
-            else reply_texts.push(`${data.displayName} 已加入群組`);
-          } catch (err) {
-            console.log(err);
-            if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
-            else reply_texts.push(`${data.displayName} 已加入群組`);
-          } finally {
-            send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
-          }
-        });
+        if (groupId === open_groupid) {
+          get_user_profile("U" + userId).then(create_user(data, userId, groupId));
+        } else {
+          get_group_member("C" + groupId, "U" + userId).then(create_user(data, userId, groupId));
+        }
       }
     }
   } catch (err) {
