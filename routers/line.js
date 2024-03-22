@@ -41,6 +41,7 @@ const send_push_msg = (dataString) => {
     headers: headers,
     body: dataString,
   };
+  console.log(dataString);
 
   const request = https.request(webhookOptions);
 
@@ -172,9 +173,7 @@ router.post("/", async (req, res, next) => {
         } catch (err) {
           console.log(err);
         } finally {
-          const gid = groupId.split("-").join("");
-          console.log(gid);
-          send_push_msg(gen_push_datastring("C" + gid, reply_texts));
+          send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
         }
       }
     }
