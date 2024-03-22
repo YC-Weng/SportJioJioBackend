@@ -3,7 +3,7 @@ const https = require("https");
 const axios = require("axios");
 
 const { pool } = require("../db");
-const { menu } = require("../uti");
+const { menu_group, menu_user } = require("../uti");
 const { userInfo } = require("os");
 
 const TOKEN = process.env.LINE_TOKEN;
@@ -11,6 +11,7 @@ const headers = {
   "Content-Type": "application/json",
   Authorization: "Bearer " + TOKEN,
 };
+const open_groupid = "11111111111111111111111111111111";
 
 const router = express.Router();
 
@@ -105,12 +106,20 @@ router.post("/", async (req, res, next) => {
 
     if (req.body.events[0].type === "message" && req.body.events[0].message.type === "text") {
       console.log(`text: ${req.body.events[0].message.text}`);
-      if (req.body.events[0].message.text == "揪揪") {
-        const groupId = req.body.events[0].source.groupId != null ? req.body.events[0].source.groupId.slice(1) : "";
+      const groupId =
+        req.body.events[0].source.groupId != null ? req.body.events[0].source.groupId.slice(1) : open_groupid;
+      if (req.body.events[0].message.text === "揪揪" && req.body.events[0].source.type === "group") {
         send_reply(
           JSON.stringify({
             replyToken: replyToken,
-            messages: [menu(groupId)],
+            messages: [menu_group(groupId)],
+          })
+        );
+      } else if (req.body.events[0].message.text === "揪揪" && req.body.events[0].source.type === "user") {
+        send_reply(
+          JSON.stringify({
+            replyToken: replyToken,
+            messages: [menu_user(groupId)],
           })
         );
       } else if (req.body.events[0].message.text.startsWith("sjj setgroupname")) {
@@ -167,10 +176,12 @@ router.post("/", async (req, res, next) => {
             } catch (err) {
               console.log(err);
             }
-            reply_texts.push(`${data.displayName} 已加入群組`);
+            if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
+            else reply_texts.push(`${data.displayName} 已加入群組`);
           } catch (err) {
             console.log(err);
-            reply_texts.push(`${data.displayName} 已加入群組`);
+            if (groupId === open_groupid) reply_texts.push(`${data.displayName} 已建立帳號`);
+            else reply_texts.push(`${data.displayName} 已加入群組`);
           } finally {
             send_push_msg(gen_push_datastring("C" + groupId.split("-").join(""), reply_texts));
           }
