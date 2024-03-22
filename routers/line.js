@@ -94,8 +94,7 @@ router.post("/", async (req, res, next) => {
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
       await get_group_member(req.body.events[0].source.groupId).then((res) => {
-        let group_info = res.data;
-        console.log(group_info);
+        console.log(res);
       });
 
       try {
