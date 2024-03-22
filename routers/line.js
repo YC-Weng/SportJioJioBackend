@@ -47,7 +47,15 @@ const get_group_member = (groupId) => {
     method: "GET",
     headers: headers,
   };
-  https.request(options, (res) => {});
+  const req = https.request(options, (res) => {
+    res.on("data", (d) => {
+      return d;
+    });
+    res.on("error", (err) => {
+      console.log(err);
+      return;
+    });
+  });
 };
 
 router.post("/", async (req, res, next) => {
@@ -82,17 +90,18 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      const groupId = req.body.events[0].source.groupId;
-      console.log(groupId);
+      const group_info = get_group_member(req.body.events[0].source.groupId);
       try {
-        await pool.query(`INSERT INTO groups (id, name) values ('${groupId.slice(1)}', 'default')`);
+        await pool.query(
+          `INSERT INTO groups (id, name) values ('${group_info.groupId.split(1)}', '${group_info.groupName}')`
+        );
         reply_texts.push(`已建立群組`);
       } catch (err) {
         console.log(err);
         reply_texts.push(`已建立群組`);
+      } finally {
+        send_reply(gen_datastring(replyToken, reply_texts));
       }
-      try {
-      } catch (err) {}
     }
   } catch (error) {
     console.log(error);
