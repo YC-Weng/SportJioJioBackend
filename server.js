@@ -35,7 +35,6 @@ app.use((req, res, next) => {
   for (let key in req.body) {
     console.log(`\t${key}: ${req.body[key]}`);
   }
-  console.log(`\n`);
   next();
 });
 
