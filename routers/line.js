@@ -48,16 +48,17 @@ const get_group_member = async (groupId) => {
     method: "GET",
     headers: headers,
   };
-  axios
-    .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
-    .then((res) => {
-      console.log(res.data);
-      return res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-      return {};
-    });
+  return new Promise((resolve) => {
+    axios
+      .get(`https://api.line.me/v2/bot/group/${groupId}/summary`, { headers: headers })
+      .then((res) => {
+        console.log(res.data);
+        resolve(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 };
 
 router.post("/", async (req, res, next) => {
@@ -92,8 +93,11 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      let group_info = await get_group_member(req.body.events[0].source.groupId);
-      console.log(group_info);
+      await get_group_member(req.body.events[0].source.groupId).then((res) => {
+        let group_info = res.data;
+        console.log(group_info);
+      });
+
       try {
         await pool.query(
           `INSERT INTO groups (id, name, pic_url) values ('${group_info.groupId.split(1)}', '${
