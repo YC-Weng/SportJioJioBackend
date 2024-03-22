@@ -48,6 +48,10 @@ app.get("/default_profile", (req, res, next) => {
   res.sendFile(__dirname + "/default_profile.png");
 });
 
+app.get("/default_group_profile", (req, res, next) => {
+  res.sendFile(__dirname + "/default_group_profile.png");
+});
+
 app.get("/sportjiojiologo", (req, res, next) => {
   res.sendFile(__dirname + "/sportjiojiologo.png");
 });
@@ -77,6 +81,4 @@ var httpsServer = https.createServer(credentials, app);
 // httpServer.listen(3001, () =>
 //   console.log("HTTP Backend server is listening on port 3001")
 // );
-httpsServer.listen(3000, () =>
-  console.log("HTTPS Backend server is listening on port 3000")
-);
+httpsServer.listen(3000, () => console.log("HTTPS Backend server is listening on port 3000"));
