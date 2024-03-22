@@ -92,7 +92,7 @@ router.post("/", async (req, res, next) => {
         }
       }
     } else if (req.body.events[0].type === "join" && req.body.events[0].source.type === "group") {
-      const group_info = await get_group_member(req.body.events[0].source.groupId);
+      let group_info = await get_group_member(req.body.events[0].source.groupId);
       console.log(group_info);
       try {
         await pool.query(
