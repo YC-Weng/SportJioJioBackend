@@ -86,6 +86,26 @@ router.get("/postid/:postId", async (req, res, next) => {
   }
 });
 
+router.get("/getparticipant/postid/:postId", async (req, res, next) => {
+  try {
+    const postId = req.params.postId;
+    const result_post = await pool.query(`SELECT * from posts WHERE id = ${postId}`);
+    if (result_post.rowCount == 0) res.send({ result: "no post found", status: "fail" });
+    else {
+      const result_participant = await pool.query(
+        `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${postId} AND j.uid = u.id`
+      );
+      res.send({
+        result: result_participant.rows,
+        status: "success",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.send({ status: "fail" });
+  }
+});
+
 router.post("/create", async (req, res, next) => {
   try {
     const { userId, groupId } = req.body;
