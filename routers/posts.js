@@ -32,12 +32,12 @@ router.get("/userid/:userId", async (req, res, next) => {
       (SELECT p.id from posts as p, users as u, groups as g, user_group_record as ugr WHERE u.id = '${userId}' 
       AND ugr.uid = u.id AND ugr.gid = g.id AND p.group_id = g.id)`
     );
-    for (let i = 0; i < result.rowCount; i++) {
-      const post_rst = await pool.query(
-        `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
-      );
-      result.rows[i].participant = post_rst.rows;
-    }
+    // for (let i = 0; i < result.rowCount; i++) {
+    //   const post_rst = await pool.query(
+    //     `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
+    //   );
+    //   result.rows[i].participant = post_rst.rows;
+    // }
     var rst_obj = {};
     for (let i = 0; i < result.rowCount; i++) {
       if (result.rows[i].group_id in rst_obj) rst_obj[result.rows[i].group_id].push(result.rows[i]);
