@@ -9,12 +9,12 @@ router.get("/", async (req, res, next) => {
       await pool.query(`SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, u.pic_url as launcher_pic_url, 
                         p.group_id, g.name as group_name, g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, 
                         users as u, groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id ORDER BY p.create_ts DESC limit 100`);
-    for (let i = 0; i < result.rowCount; i++) {
-      const post_rst = await pool.query(
-        `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
-      );
-      result.rows[i].participant = post_rst.rows;
-    }
+    // for (let i = 0; i < result.rowCount; i++) {
+    //   const post_rst = await pool.query(
+    //     `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
+    //   );
+    //   result.rows[i].participant = post_rst.rows;
+    // }
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
     console.log(error);
