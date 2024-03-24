@@ -7,14 +7,10 @@ router.get("/", async (req, res, next) => {
   try {
     var result =
       await pool.query(`SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, u.pic_url as launcher_pic_url, 
-                        p.group_id, g.name as group_name, g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, 
-                        users as u, groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id ORDER BY p.create_ts DESC limit 100`);
-    // for (let i = 0; i < result.rowCount; i++) {
-    //   const post_rst = await pool.query(
-    //     `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
-    //   );
-    //   result.rows[i].participant = post_rst.rows;
-    // }
+      p.group_id, g.name as group_name, g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, 
+      p.create_ts, n.count as participant_num from (SELECT p.id, count(*) from posts as p, join_record as j 
+      WHERE p.id = j.pid GROUP BY p.id) as n, posts as p, users as u, groups as g WHERE p.group_id = g.id 
+      AND p.launcher_id = u.id AND p.id = n.id`);
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
     console.log(error);
@@ -27,17 +23,12 @@ router.get("/userid/:userId", async (req, res, next) => {
     const userId = req.params.userId;
     var result = await pool.query(
       `SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, p.group_id, g.name as group_name, 
-      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, 
-      users as u, groups as g WHERE p.launcher_id = u.id AND p.group_id = g.id AND p.id in 
+      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts, n.count as participant_num 
+      from posts as p, users as u, groups as g, (SELECT p.id, count(*) from posts as p, join_record as j 
+      WHERE p.id = j.pid GROUP BY p.id) as n WHERE p.launcher_id = u.id AND p.group_id = g.id AND p.id in 
       (SELECT p.id from posts as p, users as u, groups as g, user_group_record as ugr WHERE u.id = '${userId}' 
-      AND ugr.uid = u.id AND ugr.gid = g.id AND p.group_id = g.id)`
+      AND ugr.uid = u.id AND ugr.gid = g.id AND p.group_id = g.id) AND p.id = n.id`
     );
-    for (let i = 0; i < result.rowCount; i++) {
-      const post_rst = await pool.query(
-        `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
-      );
-      result.rows[i].participant = post_rst.rows;
-    }
     var rst_obj = {};
     for (let i = 0; i < result.rowCount; i++) {
       if (result.rows[i].group_id in rst_obj) rst_obj[result.rows[i].group_id].push(result.rows[i]);
@@ -55,15 +46,10 @@ router.get("/groupid/:groupId", async (req, res, next) => {
     const groupId = req.params.groupId;
     var result = await pool.query(
       `SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, u.pic_url as launcher_pic_url, p.group_id, g.name as group_name,
-      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, users as u,
-      groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.group_id = '${groupId}' ORDER BY p.create_ts DESC `
+      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts, n.count as participant_num from posts as p, users as u,
+      groups as g, (SELECT p.id, count(*) from posts as p, join_record as j WHERE p.id = j.pid GROUP BY p.id) as n 
+      WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.group_id = '${groupId}' AND p.id = n.id`
     );
-    for (let i = 0; i < result.rowCount; i++) {
-      const post_rst = await pool.query(
-        `SELECT u.id, u.name, u.pic_url from join_record as j, users as u WHERE j.pid = ${result.rows[i].id} AND j.uid = u.id`
-      );
-      result.rows[i].participant = post_rst.rows;
-    }
     res.send({ result: result.rows, status: "success" });
   } catch (error) {
     console.log(error);
@@ -76,8 +62,10 @@ router.get("/postid/:postId", async (req, res, next) => {
     const postId = req.params.postId;
     const result_post = await pool.query(
       `SELECT p.id, p.name, p.launcher_id, u.name as launcher_name, u.pic_url as launcher_pic_url, p.group_id, g.name as group_name,
-      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts from posts as p, users as u,
-      groups as g WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.id = ${postId}`
+      g.pic_url as group_pic_url, p.start_time, p.end_time, p.max_num, p.place, p.create_ts, n.count as participant_num 
+      from posts as p, users as u, groups as g, 
+      (SELECT p.id, count(*) from posts as p, join_record as j WHERE p.id = j.pid GROUP BY p.id) as n 
+      WHERE p.group_id = g.id AND p.launcher_id = u.id AND p.id = ${postId} AND n.id = p.id`
     );
     if (result_post.rowCount == 0) res.send({ result: "no post found", status: "fail" });
     else {
