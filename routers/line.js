@@ -115,10 +115,12 @@ const create_user = async (data, userId, groupId) => {
   try {
     try {
       const rst = await pool.query(`SELECT * from users WHERE id = '${userId}'`);
-      if (rst.rowCount == 0)
+      if (rst.rowCount == 0 && data.pictureUrl != null)
         await pool.query(
           `INSERT INTO users (id, name, pic_url) values ('${userId}', '${data.displayName}', '${data.pictureUrl}')`
         );
+      else if (rst.rowCount == 0)
+        await pool.query(`INSERT INTO users (id, name) values ('${userId}', '${data.displayName}')`);
     } catch (err) {
       console.log(err);
     }
