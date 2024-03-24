@@ -38,7 +38,12 @@ router.get("/userid/:userId", async (req, res, next) => {
       );
       result.rows[i].participant = post_rst.rows;
     }
-    res.send({ result: result.rows, status: "success" });
+    var rst_obj = {};
+    for (let i = 0; i < result.rowCount; i++) {
+      if (result.rows[i].id in rst_obj) rst_obj[result.rows[i].id].push(result.rows[i]);
+      else rst_obj[result.rows[i].id] = [result.rows[i]];
+    }
+    res.send({ result: rst_obj, status: "success" });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail" });
