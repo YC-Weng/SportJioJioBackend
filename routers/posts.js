@@ -40,8 +40,8 @@ router.get("/userid/:userId", async (req, res, next) => {
     }
     var rst_obj = {};
     for (let i = 0; i < result.rowCount; i++) {
-      if (result.rows[i].id in rst_obj) rst_obj[result.rows[i].id].push(result.rows[i]);
-      else rst_obj[result.rows[i].id] = [result.rows[i]];
+      if (result.rows[i].group_id in rst_obj) rst_obj[result.rows[i].group_id].push(result.rows[i]);
+      else rst_obj[result.rows[i].group_id] = [result.rows[i]];
     }
     res.send({ result: rst_obj, status: "success" });
   } catch (error) {
